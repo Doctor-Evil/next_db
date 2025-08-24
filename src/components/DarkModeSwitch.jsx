@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import { MdLightMode, MdDarkMode } from "react-icons/md";
 
-const TRANSITION_DURATION = 600; // ms
+const TRANSITION_DURATION = 700; // ms
 
 export default function DarkModeSwitch() {
   const { theme, setTheme, systemTheme } = useTheme();
@@ -20,33 +20,36 @@ export default function DarkModeSwitch() {
   const toggleTheme = () => {
     if (!buttonRef.current) return;
 
-    // Координаты центра кнопки
+    // Центр кнопки
     const rect = buttonRef.current.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
-    // Радиус для полного экрана
+    // Радиус для покрытия всего экрана
     const maxRadius = Math.hypot(window.innerWidth, window.innerHeight);
 
-    // Начало анимации (маленький круг)
+    const nextTheme = currentTheme === "dark" ? "light" : "dark";
+    const bgColor = currentTheme === "dark" ? "#fff" : "#000";
+
+    // Стартовое состояние круга
     setCircleStyle({
       clipPath: `circle(0px at ${x}px ${y}px)`,
-      background: currentTheme === "dark" ? "#fff" : "#000",
+      background: bgColor,
     });
     setAnimating(true);
 
-    // Следующий кадр → расширяем круг
+    // Запускаем анимацию
     requestAnimationFrame(() => {
       setCircleStyle({
         clipPath: `circle(${maxRadius}px at ${x}px ${y}px)`,
-        background: currentTheme === "dark" ? "#fff" : "#000",
+        background: bgColor,
         transition: `clip-path ${TRANSITION_DURATION}ms ease-in-out`,
       });
     });
 
-    // По окончании → меняем тему
+    // По завершении анимации переключаем тему
     setTimeout(() => {
-      setTheme(currentTheme === "dark" ? "light" : "dark");
+      setTheme(nextTheme);
       setAnimating(false);
     }, TRANSITION_DURATION);
   };
@@ -58,12 +61,12 @@ export default function DarkModeSwitch() {
       <button
         ref={buttonRef}
         onClick={toggleTheme}
-        className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:scale-110 transition"
+        className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 transition hover:scale-110 cursor-pointer"
       >
         {currentTheme === "dark" ? (
-          <MdLightMode className='text-xl cursor-pointer hover:text-amber-500' />
+          <MdLightMode className="text-xl transition-colors duration-500 hover:text-amber-500 text-yellow-400" />
         ) : (
-          <MdDarkMode className='text-xl cursor-pointer hover:text-amber-500' />
+          <MdDarkMode className="text-xl transition-colors duration-500 hover:text-amber-500 text-gray-900" />
         )}
       </button>
 
